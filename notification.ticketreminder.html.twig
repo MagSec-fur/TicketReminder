@@ -1,15 +1,15 @@
 {% extends 'notification.html.twig' %}
 
 {% block content %}
-<p>Beste {{ user.name }},</p>
+<p>Beste {{ user_name }},</p>
 
-<p>Dit is een herinnering dat het volgende ticket al meer dan {{ threshold }} dagen openstaat:</p>
+<p>Dit is een herinnering dat het volgende ticket al meer dan {{ threshold }} {{ time_unit }} openstaat:</p>
 
 <ul>
     <li>Ticketnummer: #{{ ticket.id }}</li>
     <li>Titel: {{ ticket.name }}</li>
-    <li>Aangemaakt op: {{ ticket.date|date('Y-m-d H:i:s') }}</li>
-    <li>Laatst bijgewerkt op: {{ ticket.date_mod|date('Y-m-d H:i:s') }}</li>
+    <li>Aangemaakt op: {{ ticket.fields['date']|date('Y-m-d H:i:s') }}</li>
+    <li>Laatst bijgewerkt op: {{ ticket.fields['date_mod']|date('Y-m-d H:i:s') }}</li>
 </ul>
 
 <p>U kunt het ticket hier bekijken: {{ url_base }}/front/ticket.form.php?id={{ ticket.id }}</p>

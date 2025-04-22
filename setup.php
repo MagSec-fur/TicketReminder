@@ -4,15 +4,21 @@ function plugin_init_ticketreminder() {
     
     $PLUGIN_HOOKS['csrf_compliant']['ticketreminder'] = true;
     $PLUGIN_HOOKS['cron']['ticketreminder'] = ['PluginTicketreminderCron', 'cronTicketreminder'];
+    $PLUGIN_HOOKS['config_page']['ticketreminder'] = 'front/config.form.php';
+    $PLUGIN_HOOKS['menu_toadd']['ticketreminder'] = 'config';
     
-    Plugin::registerClass('PluginTicketreminderCron', ['addtabon' => ['CronTask']]);
+    Plugin::registerClass('PluginTicketreminderConfig', [
+        'addtabon' => ['Config']
+    ]);
+    
+    Plugin::registerClass('PluginTicketreminderCron');
 }
 
 
 function plugin_version_ticketreminder() {
     return [
         'name'           => 'Ticket Reminder',
-        'version'        => '1.0.1',
+        'version'        => '1.0.2',
         'author'         => 'Destiny_fur',
         'license'        => 'GPLv3+',
         'homepage'       => 'https://mgsec.nl',
@@ -38,33 +44,36 @@ function plugin_ticketreminder_check_config($verbose = false) {
 }
 
 function plugin_ticketreminder_install() {
+    global $DB;
+    
+    // Create config table
+    if (!$DB->tableExists('glpi_plugin_ticketreminder_config')) {
+        $query = "CREATE TABLE `glpi_plugin_ticketreminder_config` (
+            `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+            `threshold` INT NOT NULL DEFAULT 3,
+            `time_unit` ENUM('days', 'hours') NOT NULL DEFAULT 'days',
+            `last_execution` DATETIME NULL
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
+        $DB->queryOrDie($query, $DB->error());
+        
+        // Insert default config
+        $DB->insertOrDie('glpi_plugin_ticketreminder_config', [
+            'threshold' => 3,
+            'time_unit' => 'days'
+        ], $DB->error());
+    }
+    
     // Create cron task
     $cron = new CronTask();
     if (!$cron->getFromDBbyName('PluginTicketreminderCron', 'ticketreminder')) {
         $cron->add([
             'name'        => 'ticketreminder',
             'itemtype'    => 'PluginTicketreminderCron',
-            'frequency'   => 86400,
+            'frequency'   => 3600, // Run hourly
             'param'       => 0,
             'state'       => CronTask::STATE_DISABLE,
             'mode'        => CronTask::MODE_EXTERNAL,
-            'comment'     => 'Send reminders for tickets open more than 3 days'
-        ]);
-    }
-    
-    // Create right for this plugin
-    $right = new ProfileRight();
-    $right->add([
-        'name' => 'plugin_ticketreminder',
-        'rights' => READ | UPDATE | CREATE | PURGE
-    ]);
-    
-    // Add right to all profiles that have config UPDATE right
-    $profile = new Profile();
-    foreach ($profile->find(['config' => UPDATE]) as $profile_data) {
-        $profile->update([
-            'id' => $profile_data['id'],
-            'plugin_ticketreminder' => UPDATE
+            'comment'     => 'Send reminders for stale tickets'
         ]);
     }
     
@@ -72,15 +81,19 @@ function plugin_ticketreminder_install() {
 }
 
 function plugin_ticketreminder_uninstall() {
+    global $DB;
+    
+    // Remove config table
+    if ($DB->tableExists('glpi_plugin_ticketreminder_config')) {
+        $query = "DROP TABLE `glpi_plugin_ticketreminder_config`";
+        $DB->queryOrDie($query, $DB->error());
+    }
+    
     // Remove cron task
     $cron = new CronTask();
     if ($cron->getFromDBbyName('PluginTicketreminderCron', 'ticketreminder')) {
         $cron->delete(['id' => $cron->getID()]);
     }
-    
-    // Remove right
-    $right = new ProfileRight();
-    $right->deleteByCriteria(['name' => 'plugin_ticketreminder']);
     
     return true;
 }
