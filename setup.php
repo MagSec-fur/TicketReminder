@@ -58,7 +58,7 @@ function plugin_ticketreminder_install() {
         
         // Insert default config
         $DB->insertOrDie('glpi_plugin_ticketreminder_config', [
-            'threshold' => 3,
+            'threshold' => 1,
             'time_unit' => 'days'
         ], $DB->error());
     }

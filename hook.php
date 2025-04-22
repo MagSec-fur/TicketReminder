@@ -27,18 +27,18 @@ function showFormDisplay() {
     if (!$this->getFromDB(1)) {
         $this->fields = [
             'id' => 1,
-            'threshold' => 3,
+            'threshold' => 1,
             'time_unit' => 'days'
         ];
         $this->addToDB(); // Create record if doesn't exist
     } else {
         // Ensure all required fields are set, even if they exist in DB but not in fields array
-        $this->fields['threshold'] = $this->fields['threshold'] ?? 3;
+        $this->fields['threshold'] = $this->fields['threshold'] ?? 1;
         $this->fields['time_unit'] = $this->fields['time_unit'] ?? 'days';
     }
 
     if (isset($_POST['update'])) {
-        $threshold = isset($_POST['threshold']) ? (int)$_POST['threshold'] : 3;
+        $threshold = isset($_POST['threshold']) ? (int)$_POST['threshold'] : 1;
         $time_unit = isset($_POST['time_unit']) ? $_POST['time_unit'] : 'days';
 
         // Optional: validate time_unit
@@ -63,7 +63,7 @@ function showFormDisplay() {
     
     function showForm($ID, array $options = []) {
     // Ensure fields are set
-    $threshold = $this->fields['threshold'] ?? 3;
+    $threshold = $this->fields['threshold'] ?? 1;
     $time_unit = $this->fields['time_unit'] ?? 'days';
     
     // Start form
@@ -114,7 +114,7 @@ function showFormDisplay() {
         if (!$DB->tableExists($table)) {
             $query = "CREATE TABLE `$table` (
                 `id` int(11) NOT NULL AUTO_INCREMENT,
-                `threshold` int(11) NOT NULL DEFAULT 3,
+                `threshold` int(11) NOT NULL DEFAULT 1,
                 `time_unit` varchar(10) NOT NULL DEFAULT 'days',
                 PRIMARY KEY (`id`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
@@ -122,7 +122,7 @@ function showFormDisplay() {
             
             // Insert default configuration
             $query = "INSERT INTO `$table` (`id`, `threshold`, `time_unit`) 
-                     VALUES (1, 3, 'days')";
+                     VALUES (1, 1, 'days')";
             $DB->query($query) or die($DB->error());
         }
     }
