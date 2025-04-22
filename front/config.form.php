@@ -1,9 +1,13 @@
 <?php
-include ('../../../inc/includes.php');
+include('../../../inc/includes.php');
 
-Html::header(__('Ticket Reminder Configuration', 'ticketreminder'), $_SERVER['PHP_SELF'], 'config', 'plugins');
+Html::header(
+   __('Ticket Reminder Config', 'ticketreminder'),
+   $_SERVER['PHP_SELF'],
+   'config'
+);
 
 $config = new PluginTicketreminderConfig();
-$config->showForm();
+$config->showForm(1);
 
 Html::footer();

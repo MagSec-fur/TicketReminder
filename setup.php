@@ -4,9 +4,9 @@ function plugin_init_ticketreminder() {
     
     $PLUGIN_HOOKS['csrf_compliant']['ticketreminder'] = true;
     $PLUGIN_HOOKS['cron']['ticketreminder'] = ['PluginTicketreminderCron', 'cronTicketreminder'];
+    $PLUGIN_HOOKS['menu_toadd']['ticketreminder'] = ['config'];
     $PLUGIN_HOOKS['config_page']['ticketreminder'] = 'front/config.form.php';
-    $PLUGIN_HOOKS['menu_toadd']['ticketreminder'] = 'config';
-    
+
     Plugin::registerClass('PluginTicketreminderConfig', [
         'addtabon' => ['Config']
     ]);
@@ -18,7 +18,7 @@ function plugin_init_ticketreminder() {
 function plugin_version_ticketreminder() {
     return [
         'name'           => 'Ticket Reminder',
-        'version'        => '1.0.2',
+        'version'        => '1.0.3',
         'author'         => 'Destiny_fur',
         'license'        => 'GPLv3+',
         'homepage'       => 'https://mgsec.nl',
