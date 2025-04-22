@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+   <name>Ticket Reminder</name>
+   <key>ticketreminder</key>
+   <state>development</state>
+   <logo>https://raw.githubusercontent.com/MagSec-fur/GLPI_knowlegde_base_number_plugin/refs/tags/V1/knowledgeautonumber/pics/icon.png</logo>
+   <description>
+      <short>
+         <en>Automatically generates numbering for knowledge base articles in GLPI.
+        </en>
+      </short>
+      <long>
+         <en>Automatically generates numbering for knowledge base articles in GLPI.
+        This plugin helps organize and standardize your knowledge base with automatic numbering.</en>
+      </long>
+   </description>
+   <homepage>https://github.com/MagSec-fur/GLPI_knowlegde_base_number_plugin</homepage>
+   <download>https://github.com/MagSec-fur/GLPI_knowlegde_base_number_plugin/tree/V1/knowledgeautonumber</download>
+   <issues>https://github.com/MagSec-fur/GLPI_knowlegde_base_number_plugin/issues</issues>
+   <readme>https://github.com/MagSec-fur/GLPI_knowlegde_base_number_plugin/blob/main/README.md</readme>
+   <authors>
+      <author>Destiny_fur</author>
+      <author>MagSec</author>
+   </authors>
+   <versions>
+      <version>
+         <num>1.0.0</num>
+         <compatibility>10.0</compatibility>
+         <compatibility>10.0.16</compatibility>
+         <compatibility>10.0.18</compatibility>
+         <compatibility>~10.0</compatibility>
+         <download_url>https://github.com/MagSec-fur/GLPI_knowlegde_base_number_plugin/releases/download/V1/knowledgeautonumber.tar.bz2</download_url>
+      </version>
+   </versions>
+   <langs>
+      <lang>en_GB</lang>
+      <lang>nl_NL</lang>
+      <lang>pl_PL</lang>
+      <lang>de_DE</lang>
+      <lang>fr_FR</lang>
+      <lang>es_ES</lang>
+      <lang>it_IT</lang>
+      <lang>pt_PT</lang>
+      <lang>ru_RU</lang>
+      <lang>ja_JP</lang>
+      <lang>zh_CN</lang>
+      <lang>ar_SA</lang>
+      <lang>tr_TR</lang>
+      <lang>sv_SE</lang>
+   </langs>
+   <license>GPL v3</license>
+   <tags>
+      <en>
+         <tag>Ticket</tag>
+         <tag>Reminder</tag>
+         <tag>MagSec</tag>
+      </en>
+   </tags>
+   <screenshots>
+      <screenshot>https://github.com/MagSec-fur/GLPI_knowlegde_base_number_plugin/blob/main/knowledgeautonumber/pics/screenshots/Screenshot_1.png?raw=true</screenshot>
+      <screenshot>https://github.com/MagSec-fur/GLPI_knowlegde_base_number_plugin/blob/main/knowledgeautonumber/pics/screenshots/Screenshot_2.png?raw=true</screenshot>
+   </screenshots>
+</root>
