@@ -6,7 +6,15 @@ if (!defined("GLPI_ROOT")) {
 }
 
 class PluginTicketreminderCron extends CommonDBTM {
-    static $rightname = 'config';
+    // Define proper rights for this class
+    static $rightname = 'plugin_ticketreminder';
+    
+    static function cronTicketreminder($task) {
+        // Check if current user has right to execute this cron
+        if (!self::canCreate()) {
+            $task->log("User doesn't have rights to execute this cron task");
+            return false;
+        }
     
     static function cronTicketreminder($task) {
         global $DB, $CFG_GLPI;
@@ -76,5 +84,12 @@ class PluginTicketreminderCron extends CommonDBTM {
     
     static function getTypeName($nb = 0) {
         return __('Ticket Reminder', 'ticketreminder');
+    }
+}
+
+
+    // Add this method to define who can view/execute this plugin
+    static function canCreate() {
+        return Session::haveRight('config', UPDATE);
     }
 }
