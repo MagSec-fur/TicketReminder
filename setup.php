@@ -1,27 +1,13 @@
 <?php
-<?php
 function plugin_init_ticketreminder() {
     global $PLUGIN_HOOKS;
     
-    // Explicit CSRF compliance declaration
     $PLUGIN_HOOKS['csrf_compliant']['ticketreminder'] = true;
-    
-    // Cron hook registration
     $PLUGIN_HOOKS['cron']['ticketreminder'] = ['PluginTicketreminderCron', 'cronTicketreminder'];
     
-    // Correct class registration - removed invalid 'checkright' parameter
-    Plugin::registerClass('PluginTicketreminderCron', [
-        'addtabon' => ['CronTask']
-    ]);
-    
-    // Notification event registration
-    $PLUGIN_HOOKS['item_get_events']['ticketreminder'] = [
-        'NotificationTargetTicket' => ['plugin_ticketreminder_getEvents']
-    ];
-    
-    // Add configuration tab to global configuration
-    $PLUGIN_HOOKS['config_page']['ticketreminder'] = 'front/config.form.php';
+    Plugin::registerClass('PluginTicketreminderCron', ['addtabon' => ['CronTask']]);
 }
+
 
 function plugin_version_ticketreminder() {
     return [
