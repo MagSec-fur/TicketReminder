@@ -1,0 +1,24 @@
+{% extends "generic_show_form.html.twig" %}
+{% import "components/form/fields_macros.html.twig" as fields %}
+
+{% block form_fields %}
+    {{ fields.numberField(
+        'days',
+        config.days,
+        __('Days', 'ticketreminder'),
+        {
+            'min': 0,
+            'max': 365
+        }
+    ) }}
+
+    {{ fields.numberField(
+        'hours',
+        config.hours,
+        __('Hours', 'ticketreminder'),
+        {
+            'min': 0,
+            'max': 23
+        }
+    ) }}
+{% endblock %}
