@@ -1,5 +1,5 @@
 <?php
-define('PLUGIN_TICKETREMINDER_VERSION', '1.0.0');
+define('PLUGIN_TICKETREMINDER_VERSION', '1.0.1');
 
 if (!defined("GLPI_ROOT")) {
     die("Sorry. You can't access directly to this file");
@@ -14,51 +14,56 @@ class PluginTicketreminderCron extends CommonDBTM {
         $message = [];
         $message[] = "Starting Ticket Reminder Plugin";
         
-        // Get all open tickets older than 3 days
-        $query = "SELECT t.id, t.name, t.date, t.status, t.users_id_recipient, t.users_id_lastupdater, 
-                         t.users_id_assign, t.date_mod, tu.users_id
+        // Get threshold from config or use default (3 days)
+        $threshold = 3;
+        
+        // Get all open tickets older than threshold days
+        $query = "SELECT t.id, t.name, t.date, t.status, t.users_id_recipient, 
+                         t.users_id_lastupdater, t.users_id_assign, t.date_mod, 
+                         tu.users_id, u.email
                   FROM glpi_tickets t
                   LEFT JOIN glpi_tickets_users tu ON t.id = tu.tickets_id AND tu.type = 2
-                  WHERE t.status NOT IN (" . Ticket::SOLVED . "," . Ticket::CLOSED . ")
-                  AND DATEDIFF(NOW(), t.date) > 3";
+                  LEFT JOIN glpi_users u ON tu.users_id = u.id
+                  WHERE t.is_deleted = 0
+                  AND t.status NOT IN (" . Ticket::SOLVED . "," . Ticket::CLOSED . ")
+                  AND DATEDIFF(NOW(), t.date) > $threshold";
         
         $result = $DB->query($query);
         
         $count = 0;
+        $notification = new Notification();
         
         while ($data = $DB->fetchAssoc($result)) {
             $ticket = new Ticket();
             $ticket->getFromDB($data['id']);
             
-            $assigned_user = new User();
-            if ($data['users_id_assign'] && $assigned_user->getFromDB($data['users_id_assign'])) {
-                $email = $assigned_user->getDefaultEmail();
+            $user = new User();
+            if ($data['users_id_assign'] && $user->getFromDB($data['users_id_assign'])) {
+                $email = $user->getDefaultEmail();
                 if (!empty($email)) {
                     $count++;
                     
-                    // Prepare email content
-                    $subject = "[Reminder] Ticket #" . $data['id'] . " is still open";
-                    $body = "Dear " . $assigned_user->getName() . ",\n\n";
-                    $body .= "This is a reminder that the following ticket is still open:\n\n";
-                    $body .= "Ticket ID: #" . $data['id'] . "\n";
-                    $body .= "Title: " . $data['name'] . "\n";
-                    $body .= "Created: " . $data['date'] . "\n";
-                    $body .= "Last updated: " . $data['date_mod'] . "\n\n";
-                    $body .= "You can view the ticket here: " . $CFG_GLPI['url_base'] . "/front/ticket.form.php?id=" . $data['id'] . "\n\n";
-                    $body .= "Please take appropriate action.\n\n";
-                    $body .= "This is an automated message.";
+                    // Use GLPI's notification system for better compliance
+                    $options = [
+                        'ticket' => $ticket,
+                        'user'   => $user,
+                        'threshold' => $threshold
+                    ];
                     
-                    // Send email
-                    $mail = new NotificationMail();
-                    $mail->addTo($email);
-                    $mail->setSubject($subject);
-                    $mail->setBody($body);
+                    $notification->add([
+                        'itemtype' => 'Ticket',
+                        'items_id' => $data['id'],
+                        'event'    => 'ticketreminder',
+                        'targets'  => [
+                            [
+                                'type' => 'user',
+                                'items_id' => $data['users_id_assign']
+                            ]
+                        ],
+                        'options'  => $options
+                    ]);
                     
-                    if (!$mail->send()) {
-                        $message[] = "Failed to send reminder for ticket #" . $data['id'];
-                    } else {
-                        $message[] = "Sent reminder for ticket #" . $data['id'] . " to " . $email;
-                    }
+                    $message[] = "Queued reminder for ticket #" . $data['id'] . " to " . $email;
                 }
             }
         }
@@ -66,7 +71,7 @@ class PluginTicketreminderCron extends CommonDBTM {
         $message[] = "Processed " . $count . " tickets";
         $task->log(implode("\n", $message));
         
-        return true;
+        return ($count > 0);
     }
     
     static function getTypeName($nb = 0) {
